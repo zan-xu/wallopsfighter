@@ -1,54 +1,55 @@
-<!-- Calculus Fighter! -->
+<!-- Not Calculus Fighter Anymore! -->
 <html>
-    <head>
-        <title>Calculus Fighter</title>
-        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-        <link rel="stylesheet" type="text/css" href="styles.css">
-        <script src="player.js"></script>
-        <script src="bullet.js"></script>
-		<script src="particle.js"></script>
-        <script src="platform.js"></script>
-        <script src="engine.js"></script>
-        <meta charset="utf-8">
-    </head>
-    <body onload="javascript: start();">
-        <canvas id="canvas" width="800px" height="600px">Unsupported!</canvas>
-        <p id="description">
-            Calculus Fighter is a simple, high-pace action game focused on skill, reaction, and math! Fight as the eternal foes, Captain Zero and Infinitus. Harness the offensive powers of the derivative and defensive protection of the integral in order to reduce your opponent to mere mortal numbers! Witness who will triumph in the ultimate showdown of calculus destiny!<br><br>Noah Kim, Arman Siddique, 2016<br><br>&darr;
-        </p>
-        <div id="information">
-            <div id="zero-controls" class="column1">
-                <strong style="font-size: 18px;">Captain Zero Controls</strong><br>
-                <table>
-                    <tr><td>Jump</td><td>W</td></tr>
-                    <tr><td>Strafe left</td><td>A</td></tr>
-                    <tr><td>Strafe right</td><td>D</td></tr>
-                    <tr><td>Throw derivative</td><td>1</td></tr>
-                    <tr><td>Integral shield</td><td>`</td></tr>
-                </table>
-            </div>
-            <div id="infinitus-controls" class="column2">
-                <strong>Infinitus Controls</strong><br>
-                <table>
-                    <tr><td>&uarr;</td><td>Jump</td></tr>
-                    <tr><td>&larr;</td><td>Strafe left</td></tr>
-                    <tr><td>&rarr;</td><td>Strafe right</td></tr>
-                    <tr><td>\</td><td>Throw derivative</td></tr>
-                    <tr><td>]</td><td>Integral shield</td></tr>
-                </table>
-            </div>
-            <div class="clear">
-                <strong style="font-size: 18px;">Game Mechanics</strong><br>
-                <table style="text-align: center;">
-                    <tr><td><strong>double jump</strong> - gives the players an extra boost in mid air</td></tr>
-                    <tr><td><strong>death invincibility</strong> - safety for 2 seconds after death</td></tr>
-                    <tr><td><strong>derivative limit</strong> - players get two active bullets at a time</td></tr>
-                    <tr><td><strong>integral limit</strong> - players can only shield for two seconds per life</td></tr>
-                    <tr><td><strong>real time physics</strong> - accurate gravity and movement</td></tr>
-                    <tr><td><strong>particle simulation</strong> - the player explodes into a cloud of numbers</td></tr>
-                    <tr><td><strong>fantastic units</strong> - a better way to see runtime statistics</td></tr>
-                </table>
-            </div>
-        </div>
-    </body>
+<head>
+    <title>Wallops Fighter</title>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="player.js"></script>
+    <script src="bullet.js"></script>
+    <script src="particle.js"></script>
+    <script src="platform.js"></script>
+    <script src="engine.js"></script>
+    <meta charset="utf-8">
+</head>
+<body onload="start();">
+<canvas id="canvas" width="800px" height="600px">Unsupported!</canvas>
+<p id="description">
+    Wallops fighter is a gam. Based on <a href="https://www.noahbkim.com/calcfighter">CalcFighter</a>
+    by Noah Kim and Arman Siddique.
+
+    <br><br>
+    Zan Xu, 2016
+    <br>&darr;
+</p>
+<div id="information">
+    <div id="zero-controls" class="column">
+        <strong style="font-size: 18px;">Captain Zero Controls</strong><br>
+        <table>
+            <tr>
+                <td>Jump</td>
+                <td>W</td>
+            </tr>
+            <tr>
+                <td>Strafe left</td>
+                <td>A</td>
+            </tr>
+            <tr>
+                <td>Strafe right</td>
+                <td>D</td>
+            </tr>
+            <tr>
+                <td>Shoot</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>Shield</td>
+                <td>`</td>
+            </tr>
+        </table>
+    </div>
+    <div class="clear">
+        <p> Now with more bullets!</p>
+    </div>
+</div>
+</body>
 </html>
