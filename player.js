@@ -1,5 +1,8 @@
+//TODO: varying accelerations
+
+
 // Player data and computation model.
-function Player(name, image, intimage, particleImages, bindings, engine) {
+function Player(name, image, intimage, particleImages, move, engine, startX, startDir) {
 
     // Engine.
     this.engine = engine;
@@ -14,7 +17,7 @@ function Player(name, image, intimage, particleImages, bindings, engine) {
     this.particles = [];
 
     // Position and physics.
-    this.x = 0;
+    this.x = startX;
     this.y = 0;
     this.xv = 0;
     this.yv = 0;
@@ -23,8 +26,9 @@ function Player(name, image, intimage, particleImages, bindings, engine) {
     //this.movedDown = false;
     this.grounded = false;
     this.collisions = {};
-    this.direction = -1;
+    this.direction = startDir;
     this.deathTime = 0;
+    
 
     // Bullets and shield.
     this.bullet = MAX_BULLETS;
@@ -36,7 +40,7 @@ function Player(name, image, intimage, particleImages, bindings, engine) {
     this.score = 0;
 
     // Input.
-    this.bindings = bindings;
+    this.move = move;
 
     // Geometry. 
     this.bbox = function () {
@@ -49,7 +53,7 @@ function Player(name, image, intimage, particleImages, bindings, engine) {
         // Update particles.
         for (var i = 0; i < this.particles.length; i++) this.particles[i].update(delta);
 
-        // Strafing.
+        /* Strafing.
         if (this.bindings.left in keys) {
             this.xv -= XV_ACCELERATION;
             this.direction = -1;
@@ -57,20 +61,22 @@ function Player(name, image, intimage, particleImages, bindings, engine) {
         if (this.bindings.right in keys) {
             this.xv += XV_ACCELERATION;
             this.direction = 1;
-        }
+        }*/
+        
+        move.bind(this)(delta);
 
         // X drag and terminal velocity.
         var sign = this.xv > 0 ? 1 : -1;
         this.xv = sign * Math.max(Math.abs(this.xv) - XV_FRICTION, 0);
         if (Math.abs(this.xv) > XV_TERMINAL) this.xv = sign * XV_TERMINAL;
 
-        // Jumping.
+        /*/ Jumping.
         if (this.jump < JUMP_MAX && Date.now() - this.jumpTime > JUMP_COOLDOWN && this.bindings.up in keys) {
             this.grounded = false;
             this.jump++;
             this.jumpTime = Date.now();
             this.yv = -JUMP;
-        }
+        }*/
 
         // Groundedness.
         if (!this.grounded) {
@@ -89,15 +95,15 @@ function Player(name, image, intimage, particleImages, bindings, engine) {
         this.x += this.xv * delta;
         this.y += this.yv * delta;
 
-        // Shooting.
+        /*/ Shooting.
         if (this.bullet > 0 && Date.now() - this.bulletTime > BULLET_COOLDOWN && this.bindings.shoot in keys && !this.shielded) {
             this.bullet--;
             this.bulletTime = Date.now();
             this.engine.bullets.push(new Bullet(this));
             this.deathTime = 0;
-        }
+        }*/
 
-        // Shields after user presses key.
+        /*/ Shields after user presses key.
         if (this.shield > 0 && this.bindings.shield in keys && !this.invincible()) {
             if (this.shielded) {
                 this.shield -= delta;
@@ -106,7 +112,7 @@ function Player(name, image, intimage, particleImages, bindings, engine) {
             }
         } else {
             this.shielded = false;
-        }
+        }*/
 
         // Make sure the shield is at a sensible value.
         this.shield = Math.max(this.shield, 0);
@@ -178,13 +184,43 @@ function Player(name, image, intimage, particleImages, bindings, engine) {
         return Date.now() - this.deathTime < INVINCIBILITY_TIME;
 
     }
+    
+    
+    this.dojump = function () {
+        if (this.jump < JUMP_MAX && Date.now() - this.jumpTime > JUMP_COOLDOWN) {
+            this.grounded = false;
+            this.jump++;
+            this.jumpTime = Date.now();
+            this.yv = -JUMP;
+        }
+    }
+    
+    this.doshoot = function () {
+        if (this.bullet > 0 && Date.now() - this.bulletTime > BULLET_COOLDOWN && !this.shielded) {
+            this.bullet--;
+            this.bulletTime = Date.now();
+            this.engine.bullets.push(new Bullet(this));
+            this.deathTime = 0;
+        }
+    }
+    
+    this.doshield = function (delta) {
+        if (this.shield > 0 && !this.invincible()) {
+            if (this.shielded) {
+                this.shield -= delta;
+            } else {
+                this.shielded = true;
+            }
+        } else {
+            this.shielded = false;
+        }
+    }
+    
+    this.dowalk = function (dir) {
+        this.xv += this.XV_ACCELERATION * dir;
+        this.direction = dir;
+    }
+    
+    
 
-}
-
-
-// Enemy Model
-function Enemy(name, image, intimage, particleImages, bindings, engine, startX, startDir) {
-    Player.call(this, name, image, intimage, particleImages, bindings, engine);
-    this.x = startX;
-    this.direction = startDir;
 }
