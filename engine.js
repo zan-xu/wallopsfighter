@@ -25,7 +25,7 @@ var SHIELD_TIME = 2000;
 var MAP_TIME = 500;
 
 // Platform constants.
-PLATFORM_THICKNESS = 4;
+var PLATFORM_THICKNESS = 4;
 
 // Animation limits.
 var FPS_CAP = 100;
@@ -63,10 +63,11 @@ var spritesPaths = {
 var spritesReady = {};
 var sprites = {};
 
-for (var key in spritesPaths) {
+var key, image;
+for (key in spritesPaths) {
     spritesReady[key] = false;
 
-    var image = new Image();
+    image = new Image();
     image.key = key;
     image.onload = function () {
         spritesReady[this.key] = true;
@@ -80,7 +81,8 @@ var particlePaths = ["images/particle/0.png", "images/particle/1.png", "images/p
 var particlesReady = [];
 var particles = [];
 
-for (var i = 0; i < particlePaths.length; i++) {
+var i;
+for (i = 0; i < particlePaths.length; i++) {
     particlesReady[i] = false;
 
     image = new Image();
@@ -118,14 +120,14 @@ function Engine(canvas) {
     // Input binding.
     addEventListener("keydown", function (e) {
         keys[e.keyCode] = true;
-        if ([37, 39, 38, 40].indexOf(e.keyCode) > -1) e.preventDefault();
+        if ([37, 39, 38, 40].indexOf(e.keyCode) > -1) {e.preventDefault();}
     }, false);
     addEventListener("keyup", function (e) {
         delete keys[e.keyCode];
     }, false);
 
     // Game objects.
-    this.map = 1;
+    this.map = 0;
     this.maps = [
         {
             platforms: [
@@ -148,16 +150,14 @@ function Engine(canvas) {
         //evil: new Enemy("evil", sprites.evil, sprites.intlarge, particles, keymap[0], this, canvas.length-100, -1)
     };
 
-    this.players.zero.x = 100;
-    this.players.zero.direction = 1;
-
     // Update the game.
     this.update = function (delta) {
 
         // Update the players
-        for (var name in this.players) this.players[name].update(delta);
-        for (var i = 0; i < this.bullets.length; i++) {
-            var bullet = this.bullets[i];
+        var name, bullet;
+        for (name in this.players) {this.players[name].update(delta); }
+        for (i = 0; i < this.bullets.length; i++) {
+            bullet = this.bullets[i];
             bullet.update(delta);
 
             // Check if a bullet has died.
@@ -165,19 +165,21 @@ function Engine(canvas) {
                 this.dieBullet(i);
             }
         }
+        
+        var player, bbox;
 
         // Collision detection
-        for (var name in this.players) {
+        for (name in this.players) {
 
             // Get the actual player.
-            var player = this.players[name];
+            player = this.players[name];
 
             // Generate boundary boxes.
-            var bbox = player.bbox();
+            bbox = player.bbox();
 
             // Platform collision.
             player.grounded = false;
-            for (var i = 0; i < this.platforms.length; i++) {
+            for (i = 0; i < this.platforms.length; i++) {
 
                 // Access the individual platform. 
                 var platform = this.platforms[i];
@@ -196,10 +198,10 @@ function Engine(canvas) {
 
             }
 
-            for (var i = 0; i < this.bullets.length; i++) {
+            for (i = 0; i < this.bullets.length; i++) {
 
                 // Access the bullet.
-                var bullet = this.bullets[i];
+                bullet = this.bullets[i];
 
                 // Intersection with bullet.
                 if (!player.invincible() && !player.shielded && intersects(bbox, bullet.bbox())) {
@@ -328,14 +330,26 @@ function Engine(canvas) {
 
         this.players = {};
 
-        for (var playerArgs in map.spawns) {
-            playerArgs.respawn();
+        //Construct a mob for each specified in the map
+        spawns = this.maps[this.map].spawns;
+        for (var playerArgs in spawns) {
+            console.log(spawns[playerArgs]);
+            if(spawns[playerArgs][0] == "zero") this.players["zero"] = constructPlayer(false, spawns[playerArgs]);
+            else this.players[spawns[playerArgs][0]] = constructPlayer(true, spawns[playerArgs]);
+            this.players[spawns[playerArgs][0]].respawn();
         }
 
         this.players.zero.x = this.maps[this.map].spawns.zero - this.players.zero.image.width / 2;
         this.mapTime = Date.now();
     }
 
+}
+
+
+// Makes a player/monster
+function constructPlayer(isEnemy,args){
+    if (isEnemy) return new Enemy(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
+    return new Player(args[0], args[1], args[2], args[3], args[4], args[5]);
 }
 
 // Start the game.
