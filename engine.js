@@ -67,7 +67,11 @@ var key, image;
 for (key in spritesPaths) {
     spritesReady[key] = false;
 
+<<<<<<< HEAD
     image = new Image();
+=======
+    var image = new Image();
+>>>>>>> 4167d26277a5c6edfa17f27e11ceb686a8a087c0
     image.key = key;
     image.onload = function () {
         spritesReady[this.key] = true;
@@ -81,8 +85,12 @@ var particlePaths = ["images/particle/0.png", "images/particle/1.png", "images/p
 var particlesReady = [];
 var particles = [];
 
+<<<<<<< HEAD
 var i;
 for (i = 0; i < particlePaths.length; i++) {
+=======
+for (var i = 0; i < particlePaths.length; i++) {
+>>>>>>> 4167d26277a5c6edfa17f27e11ceb686a8a087c0
     particlesReady[i] = false;
 
     image = new Image();
@@ -120,6 +128,7 @@ function Engine(canvas) {
     // Input binding.
     addEventListener("keydown", function (e) {
         keys[e.keyCode] = true;
+<<<<<<< HEAD
         if ([37, 39, 38, 40].indexOf(e.keyCode) > -1) {e.preventDefault();}
     }, false);
     addEventListener("keyup", function (e) {
@@ -128,6 +137,16 @@ function Engine(canvas) {
 
     // Game objects.
     this.map = 0;
+=======
+        if ([37, 39, 38, 40].indexOf(e.keyCode) > -1) e.preventDefault();
+    }, false);
+    addEventListener("keyup", function (e) {
+        delete keys[e.keyCode];
+    }, false);
+
+    // Game objects.
+    this.map = 1;
+>>>>>>> 4167d26277a5c6edfa17f27e11ceb686a8a087c0
     this.maps = [
         {
             platforms: [
@@ -150,6 +169,12 @@ function Engine(canvas) {
         //evil: new Enemy("evil", sprites.evil, sprites.intlarge, particles, keymap[0], this, canvas.length-100, -1)
     };
 
+<<<<<<< HEAD
+=======
+    this.players.zero.x = 100;
+    this.players.zero.direction = 1;
+
+>>>>>>> 4167d26277a5c6edfa17f27e11ceb686a8a087c0
     // Update the game.
     this.update = function (delta) {
 
@@ -165,6 +190,7 @@ function Engine(canvas) {
                 this.dieBullet(i);
             }
         }
+<<<<<<< HEAD
         
         var player, bbox;
 
@@ -180,6 +206,21 @@ function Engine(canvas) {
             // Platform collision.
             player.grounded = false;
             for (i = 0; i < this.platforms.length; i++) {
+=======
+
+        // Collision detection
+        for (var name in this.players) {
+
+            // Get the actual player.
+            var player = this.players[name];
+
+            // Generate boundary boxes.
+            var bbox = player.bbox();
+
+            // Platform collision.
+            player.grounded = false;
+            for (var i = 0; i < this.platforms.length; i++) {
+>>>>>>> 4167d26277a5c6edfa17f27e11ceb686a8a087c0
 
                 // Access the individual platform. 
                 var platform = this.platforms[i];
@@ -198,10 +239,17 @@ function Engine(canvas) {
 
             }
 
+<<<<<<< HEAD
             for (i = 0; i < this.bullets.length; i++) {
 
                 // Access the bullet.
                 bullet = this.bullets[i];
+=======
+            for (var i = 0; i < this.bullets.length; i++) {
+
+                // Access the bullet.
+                var bullet = this.bullets[i];
+>>>>>>> 4167d26277a5c6edfa17f27e11ceb686a8a087c0
 
                 // Intersection with bullet.
                 if (!player.invincible() && !player.shielded && intersects(bbox, bullet.bbox())) {
@@ -330,6 +378,7 @@ function Engine(canvas) {
 
         this.players = {};
 
+<<<<<<< HEAD
         //Construct a mob for each specified in the map
         spawns = this.maps[this.map].spawns;
         for (var playerArgs in spawns) {
@@ -337,12 +386,17 @@ function Engine(canvas) {
             if(spawns[playerArgs][0] == "zero") this.players["zero"] = constructPlayer(false, spawns[playerArgs]);
             else this.players[spawns[playerArgs][0]] = constructPlayer(true, spawns[playerArgs]);
             this.players[spawns[playerArgs][0]].respawn();
+=======
+        for (var playerArgs in map.spawns) {
+            playerArgs.respawn();
+>>>>>>> 4167d26277a5c6edfa17f27e11ceb686a8a087c0
         }
 
         this.players.zero.x = this.maps[this.map].spawns.zero - this.players.zero.image.width / 2;
         this.mapTime = Date.now();
     }
 
+<<<<<<< HEAD
 }
 
 
@@ -350,6 +404,8 @@ function Engine(canvas) {
 function constructPlayer(isEnemy,args){
     if (isEnemy) return new Enemy(args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
     return new Player(args[0], args[1], args[2], args[3], args[4], args[5]);
+=======
+>>>>>>> 4167d26277a5c6edfa17f27e11ceb686a8a087c0
 }
 
 // Start the game.
