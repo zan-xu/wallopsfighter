@@ -4,7 +4,7 @@ function Particle(image, player, engine) {
     this.engine = engine;
 
     // Particle info.
-    this.image = image;
+    this.image = sprites.red;
     this.player = player;
 
     // Timing.

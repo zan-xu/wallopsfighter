@@ -61,6 +61,11 @@ var spritesPaths = {
     backgroundBeach1: "images/backgroundBeach1.jpg",
     bullet: "images/bullet.png",
     crab: "images/crab.png",
+    lettuce: "images/lettuce.png",
+    backgroundMarsh1: "images/backgroundMarsh1.jpg",
+    horse: "images/pony.png",
+    backgroundBoat1: "images/backgroundBoat1.jpg" ,
+    red: "images/red.png"
 };
 var spritesReady = {};
 var sprites = {};
@@ -136,7 +141,7 @@ function Engine(canvas) {
     **                                                                               **
     **********************************************************************************/
     this.map = 0;
-    this.maps = [
+        this.maps = [
         {
             platforms: [
                 new Platform((canvas.width - 400) / 2, canvas.height * 13 / 20, 400, PLATFORM_THICKNESS),
@@ -148,7 +153,7 @@ function Engine(canvas) {
                 kienzle: ["kienzle", sprites.mechakienzle, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 100, -1],
             },
             onstart: function(){
-                overlay("Welcome to Wallops Fighter, a single player ripoff of Calculus Fighter.");
+                overlay("Welcome to Wallops Fighter, based off the code of Calculus Fighter. WASD to move, 1 to shoot, the shield is broken. Note that the shooting cooldown is much slower than before.");
             },
             //background: sprites.backgroundBeach1,
         },
@@ -159,20 +164,58 @@ function Engine(canvas) {
             ],
             spawns: {
                 evil: ["evil", sprites.crab, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 100, -1],
-                evil2: ["evil2", sprites.crab, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 300, -1],
-                evil3: ["evil3", sprites.crab, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 500, -1],
-                evil4: ["evil4", sprites.crab, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 400, -1],
-                kienzle: ["kienzle", sprites.mechakienzle, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 100, -1],
             },
             onstart: function(){
                 overlay(
         "Horseshoe crabs live in shallow ocean waters on soft muddy floors. The variety seen at Chincoteague is the" +
         " <i>Limulus polyphemus</i>. They have been around for about 450 Ma and have changed very little. The tail is called"+
-        " the telson and is used to move itself around, not to sting."
+        " the telson and is used to move itself around, not to sting. <br> <img src='images/crab.png'></img>"
                 );
             },
             background: sprites.backgroundBeach1,
+        },
+        {
+            platforms: [
+                new Platform(30, 200, 100, PLATFORM_THICKNESS),
+                new Platform(250, 250, 300, PLATFORM_THICKNESS),
+                new Platform(450, 450, 300, PLATFORM_THICKNESS),
+                new Platform(550, 250, 300, PLATFORM_THICKNESS),
+            ],
+            spawns: {
+                evil3: ["evil3", sprites.horse, sprites.intlarge, particles, getDumbMover(8, 1), this, canvas.width - 400, -1],
+                evil4: ["evil4", sprites.horse, sprites.intlarge, particles, getDumbMover(7, 1), this, canvas.width - 600, -1],
+                evil5: ["evil5", sprites.horse, sprites.intlarge, particles, getDumbMover(3, 3), this, canvas.width - 500, -1],
+                evil6: ["evil6", sprites.horse, sprites.intlarge, particles, getDumbMover(4, 2), this, canvas.width - 300, -1],
+                evil7: ["evil7", sprites.crab, sprites.intlarge, particles, DUMB_MOVE, this, 330, -1],
+                kienzle: ["kienzle", sprites.crab, sprites.intlarge, particles, DUMB_MOVE, this, 550, -1],
+            },
+            onstart: function(){
+                overlay(
+        "Chincoteague ponies are really short, around 55 inches, due to a combonation of crappy food and incest. "+
+        "About 300 ponies live on the island. On the Chincoteague side, the ponies are given medical care. "+
+        "On the Assateague side, the ponies are mostly just feral."
+                );
+            },
+            background: sprites.backgroundMarsh1,
+        },
+        {
+            platforms: [
+                new Platform(30, 267, 330, PLATFORM_THICKNESS),
+                new Platform(160,450, 600, PLATFORM_THICKNESS),
+            ],
+            spawns: {
+                evil: ["evil", sprites.crab, sprites.intlarge, particles, AVOID_MOVE, this, canvas.width - 100, -1],
+                evil2: ["evil2", sprites.horse, sprites.intlarge, particles, AVOID_MOVE, this, canvas.width - 300, -1],
+                evil3: ["evil3", sprites.lettuce, sprites.intlarge, particles, PLANT_MOVE, this, canvas.width - 500, -1],
+            },
+            onstart: function(){
+                overlay(
+        "Sea lettuce is a very common, globally found form of green algae. It is edible and found in sublittoral and coastal zones. They are of the genus Ulva or Monostroma."
+                );
+            },
+            background: sprites.backgroundBoat1,
         }
+        
     ];
     
     this.mapTime = 0;
@@ -358,12 +401,13 @@ function Engine(canvas) {
         // Move the player and update score.
         
         player.die();
+        player.lives--;
         
         if (player.name == "zero"){
             if(player.lives <= 0){
                 overlay("Game Over! Hit Continue to restart.");
                 player.lives = 10;
-                setMap(0);
+                this.setMap(0);
             }
             player.spawn(100);
         }
@@ -375,7 +419,7 @@ function Engine(canvas) {
             
         }
         
-        player.lives--;
+        
 
     };
 
@@ -400,7 +444,7 @@ function Engine(canvas) {
         this.platforms = this.maps[this.map].platforms;
         this.maps[this.map].killCount = Object.keys(this.maps[this.map].spawns).length;
         
-        this.players = {zero: this.players.zero};
+        //this.players = {zero: this.players.zero};
         this.players.zero.spawn(100);
         
         if("onstart" in this.maps[this.map]){
