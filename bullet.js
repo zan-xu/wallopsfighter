@@ -1,10 +1,10 @@
 function Bullet(player) {
 
     // Sprite.
-    this.image = sprites.ddx;
+    this.image = sprites.bullet;
 
     // Core information.
-    this.x = player.x;
+    this.x = player.x ;
     this.y = player.y + player.image.height / 2 - this.image.height / 2;
     this.direction = player.direction;
     this.player = player;

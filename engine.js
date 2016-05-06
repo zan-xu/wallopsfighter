@@ -33,6 +33,8 @@ var FPS_INTERVAL = 1000 / FPS_CAP;
 var F = 0;
 var S = 0;
 
+var globalEngine;
+
 var units = [
     "pole", "pound", "square meter", "second", "hour", "year", "decade", "mile", "stade", "acre", "dollar", "cookie", "frame",
     "cubic millimeter", "quartic cubit", "object", "coffee", "error", "failure", "mistake", "exception", "warning", "point",
@@ -50,11 +52,15 @@ var keys = {};
 
 // Sprites and particles.
 var spritesPaths = {
-    zero: "images/zero.png",
+    zero: "images/man.png",
     infinity: "images/infinity.png",
     ddx: "images/ddx.png",
     evil: "images/evilThing.png",
-    intlarge: "images/intlarge.png"
+    intlarge: "images/intlarge.png",
+    mechakienzle: "images/mechakienzle.png",
+    backgroundBeach1: "images/backgroundBeach1.jpg",
+    bullet: "images/bullet.png",
+    crab: "images/crab.png",
 };
 var spritesReady = {};
 var sprites = {};
@@ -104,6 +110,8 @@ function intersects(r1, r2) {
 
 // The main game engine class.
 function Engine(canvas) {
+    
+    this.running = true;
 
     // Graphics.
     this.canvas = canvas;
@@ -119,7 +127,7 @@ function Engine(canvas) {
         if ([37, 39, 38, 40].indexOf(e.keyCode) > -1) {e.preventDefault();}
     }, false);
     addEventListener("keyup", function (e) {
-        delete keys[e.keyCode];
+        keys[e.keyCode] = undefined;
     }, false);
 
     // Game objects.
@@ -137,11 +145,36 @@ function Engine(canvas) {
                 new Platform((canvas.width - 100) / 2, canvas.height * 17 / 20, 100, PLATFORM_THICKNESS)
             ],
             spawns: {
-                zero: ["zero", sprites.zero, sprites.intlarge, particles, HUMAN_MOVE, this, 100, 1],
-                evil: ["evil", sprites.evil, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 100, -1]
-            }
+                kienzle: ["kienzle", sprites.mechakienzle, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 100, -1],
+            },
+            onstart: function(){
+                overlay("Welcome to Wallops Fighter, a single player ripoff of Calculus Fighter.");
+            },
+            //background: sprites.backgroundBeach1,
+        },
+        {
+            platforms: [
+                new Platform(30, 267, 330, PLATFORM_THICKNESS),
+                new Platform(160,450, 600, PLATFORM_THICKNESS),
+            ],
+            spawns: {
+                evil: ["evil", sprites.crab, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 100, -1],
+                evil2: ["evil2", sprites.crab, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 300, -1],
+                evil3: ["evil3", sprites.crab, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 500, -1],
+                evil4: ["evil4", sprites.crab, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 400, -1],
+                kienzle: ["kienzle", sprites.mechakienzle, sprites.intlarge, particles, DUMB_MOVE, this, canvas.width - 100, -1],
+            },
+            onstart: function(){
+                overlay(
+        "Horseshoe crabs live in shallow ocean waters on soft muddy floors. The variety seen at Chincoteague is the" +
+        " <i>Limulus polyphemus</i>. They have been around for about 450 Ma and have changed very little. The tail is called"+
+        " the telson and is used to move itself around, not to sting."
+                );
+            },
+            background: sprites.backgroundBeach1,
         }
     ];
+    
     this.mapTime = 0;
 
     this.bullets = [];
@@ -149,13 +182,18 @@ function Engine(canvas) {
         //zero: new Player("zero", sprites.zero, sprites.intlarge, particles, keymap[0], this),
         //evil: new Enemy("evil", sprites.evil, sprites.intlarge, particles, keymap[0], this, canvas.length-100, -1)
     };
+    
+    this.players.zero = new Player("zero", sprites.zero, sprites.intlarge, particles, HUMAN_MOVE, this, 100, 1);
+    this.players.zero.spawn(100);
 
     // Update the game.
     this.update = function (delta) {
 
         // Update the players
         var name, bullet;
-        for (name in this.players) {this.players[name].update(delta); }
+        for (name in this.players) {
+            this.players[name].update(delta);
+        }
         for (i = 0; i < this.bullets.length; i++) {
             bullet = this.bullets[i];
             bullet.update(delta);
@@ -173,51 +211,58 @@ function Engine(canvas) {
 
             // Get the actual player.
             player = this.players[name];
+            if(player !== undefined){
 
-            // Generate boundary boxes.
-            bbox = player.bbox();
+                // Generate boundary boxes.
+                bbox = player.bbox();
 
-            // Platform collision.
-            player.grounded = false;
-            for (i = 0; i < this.platforms.length; i++) {
+                // Platform collision.
+                player.grounded = false;
+                for (i = 0; i < this.platforms.length; i++) {
 
-                // Access the individual platform. 
-                var platform = this.platforms[i];
+                    // Access the individual platform. 
+                    var platform = this.platforms[i];
 
-                // Check if colliding with platform while FALLING.
-                if (player.yv > 0 && intersects(bbox, platform.bbox()) && !(i in player.collisions)) {
-                    //console.log(platform.bbox());
-                    player.y = platform.y - player.image.height;
-                    player.yv = 0;
-                    player.grounded = true;
-                    player.jump = 0;
-                    player.collisions[i] = true;
-                } else {
-                    delete player.collisions[i];
+                    // Check if colliding with platform while FALLING.
+                    if (player.yv > 0 && intersects(bbox, platform.bbox()) && !(i in player.collisions)) {
+                        //console.log(platform.bbox());
+                        player.y = platform.y - player.image.height;
+                        player.yv = 0;
+                        player.grounded = true;
+                        player.jump = 0;
+                        player.collisions[i] = true;
+                    } else {
+                        delete player.collisions[i];
+                    }
                 }
 
-            }
+            
 
-            for (i = 0; i < this.bullets.length; i++) {
+                for (i = 0; i < this.bullets.length; i++) {
 
-                // Access the bullet.
-                bullet = this.bullets[i];
+                    // Access the bullet.
+                    bullet = this.bullets[i];
 
-                // Intersection with bullet.
-                if (!player.invincible() && !player.shielded && intersects(bbox, bullet.bbox())) {
-                    this.die(player);
-                    this.dieBullet(i);
-                } else if (player.shielded && intersects(bbox, bullet.bbox())) {
-                    this.dieBullet(i);
+                    //ensure no friendly fire
+                    if (player.name == "zero" || bullet.player.name == "zero"){
+
+                        // Intersection with bullet.
+                        if (!player.invincible() && !player.shielded && intersects(bbox, bullet.bbox())) {
+                            this.die(player);
+                            this.dieBullet(i);
+                        } else if (player.shielded && intersects(bbox, bullet.bbox())) {
+                            this.dieBullet(i);
+                        }
+                    }
+
                 }
 
+                // Edge detection.
+                if (player.x < 0) player.x = 0;
+                else if (player.x + player.image.width > canvas.width) player.x = canvas.width - player.image.width;
+                if (player.y < 0) player.y = 0;
+                else if (player.y + player.image.height > canvas.height + 150) this.die(player);
             }
-
-            // Edge detection.
-            if (player.x < 0) player.x = 0;
-            else if (player.x + player.image.width > canvas.width) player.x = canvas.width - player.image.width;
-            if (player.y < 0) player.y = 0;
-            else if (player.y + player.image.height > canvas.height + 150) this.die(player);
 
         }
 
@@ -233,10 +278,15 @@ function Engine(canvas) {
             return;
         }
 
-        // Redraw the background.
-        this.context.fillStyle = "#CCC";
-        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
+        if("background" in this.maps[this.map]){
+            // Redraw the background.
+            this.context.drawImage(this.maps[this.map].background, 0, 0, this.canvas.width, this.canvas.height);
+        }
+        else{
+            this.context.fillStyle = "#CCC";
+            this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+            
         // Draw the platforms.
         this.context.fillStyle = "#000";
         for (var i = 0; i < this.platforms.length; i++) {
@@ -262,12 +312,15 @@ function Engine(canvas) {
 
         this.context.fillRect(10, this.canvas.height - 40, 0.1 * this.players.zero.shield, 3);
         this.context.textBaseline = "bottom";
-        this.context.fillText("Captain Zero: " + this.players.zero.score, 10, this.canvas.height - 10);
+        if(this.players.zero.lives > 0){
+            this.context.fillText(this.players.zero.score + " kills " 
+                                  + "♥".repeat(this.players.zero.lives), 10, this.canvas.height - 10);
+        }
 
         this.context.textAlign = "right";
 
         this.context.textBaseline = "top";
-        this.context.fillText("(m) Map " + (this.map + 1), this.canvas.width - 10, 10);
+        this.context.fillText("Level " + (this.map + 1), this.canvas.width - 10, 10);
 
     };
 
@@ -293,18 +346,36 @@ function Engine(canvas) {
         }
 
         // Next frame
-        requestAnimationFrame(this.main.bind(this));
+        //if(this.running){
+            requestAnimationFrame(this.main.bind(this));
+        //}
 
     };
-
-    /*  TODO: Add Lives*/
 
     // Called when a player dies.
     this.die = function (player) {
 
         // Move the player and update score.
-        if (player.name != "zero") this.players.zero.score++;
+        
         player.die();
+        
+        if (player.name == "zero"){
+            if(player.lives <= 0){
+                overlay("Game Over! Hit Continue to restart.");
+                player.lives = 10;
+                setMap(0);
+            }
+            player.spawn(100);
+        }
+        else{
+            this.players.zero.score++;
+            if(--this.maps[this.map].killCount == 0){
+                this.setMap(this.map+1);
+            }
+            
+        }
+        
+        player.lives--;
 
     };
 
@@ -327,16 +398,25 @@ function Engine(canvas) {
         this.map = index % this.maps.length;
 
         this.platforms = this.maps[this.map].platforms;
-
-        this.players = {};
-
+        this.maps[this.map].killCount = Object.keys(this.maps[this.map].spawns).length;
+        
+        this.players = {zero: this.players.zero};
+        this.players.zero.spawn(100);
+        
+        if("onstart" in this.maps[this.map]){
+            this.maps[this.map].onstart();
+        }
+        
         //Construct a mob for each specified in the map
         spawns = this.maps[this.map].spawns;
         for (var playerArgs in spawns) {
-            console.log(spawns[playerArgs]);
-            this.players[spawns[playerArgs][0]] = constructPlayer(spawns[playerArgs]);
-            this.players[spawns[playerArgs][0]].respawn();
+            if(playerArgs != "zero"){
+                this.players[playerArgs] = constructPlayer(spawns[playerArgs]);
+                this.players[playerArgs].spawn(spawns[playerArgs][6]);
+            }
         }
+        
+        this.players.zero.deathTime = Date.now();
 
         //this.players.zero.x = this.maps[this.map].spawns.zero - this.players.zero.image.width / 2;
         this.mapTime = Date.now();
@@ -354,6 +434,24 @@ function constructPlayer(args){
 function start() {
     var canvas = document.getElementById("canvas");
     var e = new Engine(canvas);
+    globalEngine = e;
     e.setMap(0);
     e.start();
+}
+
+
+//Display dialog box.
+function overlay(string) {
+    document.getElementById("guideContent").innerHTML = string;
+    
+	o = document.getElementById("overlay");
+    if(o.style.visibility == "visible"){
+	    o.style.visibility = "hidden";
+        globalEngine.running = true;
+       
+    }
+    else{
+        o.style.visibility = "visible";
+        globalEngine.running = false;
+    }
 }
